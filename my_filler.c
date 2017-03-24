@@ -39,6 +39,7 @@ int 	save_fig(t_fil *ph)
 		ph->fig[b++] = '\n';
 	}
 	ph->fig[b] = '\0';
+	return (1);
 }
 
 int		copy_map(t_fil *phars, char *line)
