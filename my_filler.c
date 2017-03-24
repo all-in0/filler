@@ -22,18 +22,23 @@ int 	save_fig(t_fil *ph)
 {
 	int		a;
 	int		i;
+	int 	b;
 	char	*line;
 
+	b = -1;
 	a = -1;
-	i = -1;
 	get_next_line(0, &line);
 	ph->fig_y = ft_atoi(&line[5]);
 	ph->fig_x = ft_atoi(&line[8]);
 	ph->fig = (char *)malloc(sizeof(ph->fig) * ph->fig_y * ph->fig_x);
 	while (++a < ph->fig_y && get_next_line(0, &line))
 	{
-
+		i = -1;
+		while (line[++i] != '\0' && ph->fig[++b])
+			ph->fig[b] = line[i];
+		ph->fig[b++] = '\n';
 	}
+	ph->fig[b] = '\0';
 }
 
 int		copy_map(t_fil *phars, char *line)
