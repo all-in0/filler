@@ -78,6 +78,8 @@ int 	save_fig(t_fil *ph, int fd)
 
 	b = -1;
 	a = -1;
+	if (ph->fig != NULL)
+		free(ph->fig);
 	get_next_line(fd, &line);
 	ph->fig_y = ft_atoi(&line[5]);
 	ph->fig_x = ft_atoi(&line[8]);
@@ -104,15 +106,12 @@ int		save_map(t_fil *phars, int fd)
 
 	a = -1;
 	b = -1;
-	if (phars->map != NULL)
-		free(phars->map);
-	phars->map = (char *)malloc(sizeof(phars->map) * (phars->x * phars->y));
 	get_next_line(fd, &line);
 	phars->y = ft_atoi(&line[7]);
 	phars->x = ft_atoi(&line[11]);
-	free(line);
+	if (phars->map == NULL)
+		phars->map = (char *)malloc(sizeof(phars->map) * (phars->x * phars->y + phars->y + 1));
 	get_next_line(fd, &line);
-	free(line);
 	while (++b < phars->y && get_next_line(fd, &line))
 	{
 		i = -1;
@@ -126,16 +125,18 @@ int		save_map(t_fil *phars, int fd)
 			}
 		}
 		phars->map[++a] = '\n';
-		free(line);
 	}
+	phars->map[a] = '\0';
 }
 
 int		save_all(t_fil *phars, int fd)
 {
 	char *line;
 
-	get_next_line(fd, &line);
-	phars->pl = line[10] - '0';
+	while (!ft_strstr(line, "a.out")) {
+		get_next_line(fd, &line);
+		phars->pl = line[10] - '0';
+	}
 	if (phars->pl == 1)
 	{
 		phars->sym = 'O';
@@ -150,7 +151,6 @@ int		save_all(t_fil *phars, int fd)
 		phars->sym3 = 'O';
 		phars->sym4 = 'o';
 	}
-	free(line);
 	return (0);
 }
 
@@ -159,7 +159,7 @@ int		main(int argc, char **argv)
 	t_fil	phars;
 	bool	pr;
 	int 	fd;
-		//	fd = open("/nfs/2016/v/vnakonec/filler/cmake-build-debug/file.txt", O_RDONLY);
+			//fd = open("/nfs/2016/v/vnakonec/filler/cmake-build-debug/file.txt", O_RDONLY);
 
 	fd = 0;
 	pr = 1;
