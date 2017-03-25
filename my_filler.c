@@ -42,8 +42,8 @@ int 	check_koef(t_fil *phars, int i)
 
 	a = i / (phars->x + 1);
 	b = i % (phars->x + 1);
-	phars->map[i] = 'U';
-	ft_printf("%s", phars->map);
+//	phars->map[i] = 'U';
+//	ft_printf("%s", phars->map);
 	ft_printf("%d %d", a, b);
 }
 
@@ -134,7 +134,7 @@ int		save_all(t_fil *phars, int fd)
 {
 	char *line;
 
-	while (get_next_line(fd, &line))
+	get_next_line(fd, &line);
 	phars->pl = line[10] - '0';
 	if (phars->pl == 1)
 	{
@@ -165,12 +165,12 @@ int		main(int argc, char **argv)
 	pr = 1;
 	__builtin_bzero(&phars, sizeof(phars));
 	save_all(&phars, fd);
-	//while (pr == true)
-//	{
+	while (pr == true)
+	{
 		save_map(&phars, fd);
 		save_fig(&phars, fd);
 		find_place(&phars);
 		pr = print_fig(&phars);
-//	}
+	}
 	return(0);
 }
