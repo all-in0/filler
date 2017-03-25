@@ -12,7 +12,7 @@
 
 #ifndef FT_PRINTF_H
 # define FT_PRINTF_H
-# define BUFF_SIZE 128
+# define BUFF_SIZE 32
 # include <stdarg.h>
 # include <string.h>
 # include <stdlib.h>

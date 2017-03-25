@@ -22,8 +22,13 @@ typedef struct		s_fil
 	int				y;
 	int				fig_y;
 	int				fig_x;
+	int 			co;
+	int 			find_plase;
 	char 			*fig;
-	char			spec;
+	char			sym;
+	char 			sym2;
+	char			sym4;
+	char 			sym3;
 	char			*map;
 }					t_fil;
 
