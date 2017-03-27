@@ -29,6 +29,7 @@ typedef struct		s_fil
 	char 			sym2;
 	char			sym4;
 	char 			sym3;
+	int 			*imap;
 	char			*map;
 }					t_fil;
 

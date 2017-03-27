@@ -12,6 +12,7 @@
 
 #include "ft_printf/ft_printf.h"
 #include "filler.h"
+#include "stdio.h"
 
 int 	try_paste(t_fil *ph, int i)
 {
@@ -44,7 +45,41 @@ int 	check_koef(t_fil *phars, int i)
 	b = i % (phars->x + 1);
 //	phars->map[i] = 'U';
 //	ft_printf("%s", phars->map);
-	ft_printf("%d %d", a, b);
+	ft_printf("%d %d\n", a, b);
+}
+
+int		make_koef(t_fil *ph)
+{
+	int		i;
+	int		n;
+
+	ph->imap = (int *)malloc(sizeof(ph->imap) * ph->x * ph->y + ph->y);
+	n = 15;
+	//while
+	i = -1;
+	ph->imap[3] = 44;
+	while (++i < 100)
+		ft_printf("%d|", ph->imap[i]);
+	i = -1;
+	while (ph->map[++i] > '\0')
+		if (ph->map[i] == ph->sym4 || ph->map[i] == ph->sym3) {
+			ph->imap[i] = n;
+		}
+	while (--n > 5)
+	{
+		i = -1;
+		while (ph->map[++i] != '\0') {
+			if ((ph->imap[i + 1] == (n + 1) || ph->imap[i - 1] == (n + 1) ||
+				ph->imap[i + ph->x] == (n + 1) || ph->imap[i + ph->x + 1] == (n + 1) ||
+				ph->imap[i + ph->x + 2] == (n + 1) || ph->imap[i - ph->x] == (n + 1) ||
+				ph->imap[i - ph->x - 1] == (n + 1) || ph->imap[i - ph->x - 2] == (n + 1)) && ph->imap[i] != (n + 1))
+				ph->imap[i] = n;
+		}
+	}
+
+	i = -1;
+	while (++i < 500)
+		ft_printf("%d|", ph->imap[i]);
 }
 
 int 	find_place(t_fil *phars)
@@ -56,6 +91,7 @@ int 	find_place(t_fil *phars)
 	i = -1;
 	a = 0;
 	b = 0;
+	make_koef(phars);
 	while (phars->map[++i] != '\0')
 		if(try_paste(phars, i) == 1) {
 			check_koef(phars, i);
@@ -64,9 +100,17 @@ int 	find_place(t_fil *phars)
 	return (0);
 }
 
-bool	print_fig(t_fil *phar)
+bool	print_fig(t_fil *phar, int i)
 {
-	return (0);
+	int a;
+	int b;
+
+	a = i / (phar->x + 1);
+	b = i % (phar->x + 1);
+//	phars->map[i] = 'U';
+//	ft_printf("%s", phars->map);
+	ft_printf("%d %d\n", a, b);
+	return (true);
 }
 
 int 	save_fig(t_fil *ph, int fd)
@@ -78,20 +122,16 @@ int 	save_fig(t_fil *ph, int fd)
 
 	b = -1;
 	a = -1;
-	if (ph->fig != NULL)
-		free(ph->fig);
 	get_next_line(fd, &line);
 	ph->fig_y = ft_atoi(&line[5]);
 	ph->fig_x = ft_atoi(&line[8]);
-	free(line);
-	ph->fig = (char *)malloc(sizeof(ph->fig) * ph->fig_y * ph->fig_x + 1);
+	ph->fig = (char *)malloc(sizeof(ph->fig) * ph->fig_y * ph->fig_x + ph->fig_y);
 	while (++a < ph->fig_y && get_next_line(fd, &line))
 	{
 		i = -1;
 		while (line[++i] != '\0')
 			ph->fig[++b] = line[i];
 		ph->fig[++b] = '\n';
-		free(line);
 	}
 	ph->fig[b] = '\0';
 	return (1);
@@ -109,8 +149,7 @@ int		save_map(t_fil *phars, int fd)
 	get_next_line(fd, &line);
 	phars->y = ft_atoi(&line[7]);
 	phars->x = ft_atoi(&line[11]);
-	if (phars->map == NULL)
-		phars->map = (char *)malloc(sizeof(phars->map) * (phars->x * phars->y + phars->y + 1));
+	phars->map = (char *)malloc(sizeof(phars->map) * (phars->x * phars->y + phars->y + 1));
 	get_next_line(fd, &line);
 	while (++b < phars->y && get_next_line(fd, &line))
 	{
@@ -154,23 +193,27 @@ int		save_all(t_fil *phars, int fd)
 	return (0);
 }
 
-int		main(int argc, char **argv)
-{
-	t_fil	phars;
-	bool	pr;
-	int 	fd;
-			//fd = open("/nfs/2016/v/vnakonec/filler/cmake-build-debug/file.txt", O_RDONLY);
+int		main(int argc, char **argv) {
+	t_fil phars;
+	bool pr;
+	int fd;
+	int fd1;
+	//FILE *f = fopen("file1.txt", "w");
 
-	fd = 0;
+
+	fd = open("/nfs/2016/v/vnakonec/filler/cmake-build-debug/file.txt", O_RDONLY);
+	//fd = 0;
 	pr = 1;
 	__builtin_bzero(&phars, sizeof(phars));
 	save_all(&phars, fd);
 	while (pr == true)
 	{
-		save_map(&phars, fd);
-		save_fig(&phars, fd);
-		find_place(&phars);
-		pr = print_fig(&phars);
+	save_map(&phars, fd);
+	save_fig(&phars, fd);
+	find_place(&phars);
+	pr = print_fig(&phars, phars.x);
+	free(phars.map);
+	free(phars.fig);
 	}
 	return(0);
 }
