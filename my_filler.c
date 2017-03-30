@@ -29,23 +29,41 @@ int 	try_paste(t_fil *ph, int i)
 			 ph->fig[b] == '*') || ph->map[i] == '\n')
 			return (0);
 		if (ph->fig[b] == '\n')
-			i = i - ph->fig_x + ph->x + 1;
+			i = i + ph->fig_x + ph->x + 1;
 		else
 			i++;
 	}
-	return (a == 1 ? 1 : 0);
+	if (a == 1)
+		return (1);
+	return (0);
 }
 
-int 	check_koef(t_fil *phars, int i)
+int 	check_koef(t_fil *ph, int i)
 {
 	int a;
 	int b;
+	int c;
 
-	a = i / (phars->x + 1);
-	b = i % (phars->x + 1);
-//	phars->map[i] = 'U';
-//	ft_printf("%s", phars->map);
-	ft_printf("%d %d\n", a, b);
+	a = i;
+	b = -1;
+	c = 0;
+	while (ph->fig[++b] != '\0')
+	{
+		if (ph->fig[b] == '*') {
+			a++;
+			c = c + ph->imap[a];
+		}
+		else if (ph->fig[b] == '.')
+			a++;
+		else if (ph->fig[b] == '\n')
+			a = a + ph->fig_x + ph->x + 1;
+	}
+	if (c < ph->co || ph->co == 0)
+	{
+		ph->co = c;
+		ph->find_plase = i;
+	}
+	return (1);
 }
 
 int		make_koef(t_fil *ph)
@@ -55,11 +73,6 @@ int		make_koef(t_fil *ph)
 
 	ph->imap = (int *)malloc(sizeof(ph->imap) * ph->x * ph->y + ph->y);
 	n = 15;
-	//while
-	i = -1;
-	ph->imap[3] = 44;
-	while (++i < 100)
-		ft_printf("%d|", ph->imap[i]);
 	i = -1;
 	while (ph->map[++i] > '\0')
 		if (ph->map[i] == ph->sym4 || ph->map[i] == ph->sym3) {
@@ -69,44 +82,39 @@ int		make_koef(t_fil *ph)
 	{
 		i = -1;
 		while (ph->map[++i] != '\0') {
-			if ((ph->imap[i + 1] == (n + 1) || ph->imap[i - 1] == (n + 1) ||
+			if (((ph->imap[i + 1] == (n + 1) || ph->imap[i - 1] == (n + 1) ||
 				ph->imap[i + ph->x] == (n + 1) || ph->imap[i + ph->x + 1] == (n + 1) ||
 				ph->imap[i + ph->x + 2] == (n + 1) || ph->imap[i - ph->x] == (n + 1) ||
-				ph->imap[i - ph->x - 1] == (n + 1) || ph->imap[i - ph->x - 2] == (n + 1)) && ph->imap[i] != (n + 1))
+				ph->imap[i - ph->x - 1] == (n + 1) || ph->imap[i - ph->x - 2] == (n + 1)) && ph->imap[i] < (n + 1)) && ph->imap[i] == 0)
 				ph->imap[i] = n;
 		}
 	}
-
-	i = -1;
-	while (++i < 500)
-		ft_printf("%d|", ph->imap[i]);
 }
 
-int 	find_place(t_fil *phars)
-{
-	int		i;
-	int		a;
-	int 	b;
+bool 	find_place(t_fil *phars) {
+	int i;
+	int a;
+	int b;
 
 	i = -1;
 	a = 0;
 	b = 0;
 	make_koef(phars);
-	while (phars->map[++i] != '\0')
-		if(try_paste(phars, i) == 1) {
+	while (++i <= (phars->x * (phars->y + 1)) - phars->fig_x * (phars->fig_y + 1))
+		if (try_paste(phars, i))
 			check_koef(phars, i);
-			break ;
-		}
-	return (0);
+	if (phars->co == 0)
+		return (0);
+	return (1);
 }
 
-bool	print_fig(t_fil *phar, int i)
+bool	print_fig(t_fil *phar)
 {
 	int a;
 	int b;
 
-	a = i / (phar->x + 1);
-	b = i % (phar->x + 1);
+	a = phar->find_plase / (phar->x + 1);
+	b = phar->find_plase % (phar->x + 1);
 //	phars->map[i] = 'U';
 //	ft_printf("%s", phars->map);
 	ft_printf("%d %d\n", a, b);
@@ -149,6 +157,8 @@ int		save_map(t_fil *phars, int fd)
 	get_next_line(fd, &line);
 	phars->y = ft_atoi(&line[7]);
 	phars->x = ft_atoi(&line[11]);
+	if (phars->y == 0 && phars->x == 0)
+		return (0);
 	phars->map = (char *)malloc(sizeof(phars->map) * (phars->x * phars->y + phars->y + 1));
 	get_next_line(fd, &line);
 	while (++b < phars->y && get_next_line(fd, &line))
@@ -193,7 +203,8 @@ int		save_all(t_fil *phars, int fd)
 	return (0);
 }
 
-int		main(int argc, char **argv) {
+int		main(int argc, char **argv)
+{
 	t_fil phars;
 	bool pr;
 	int fd;
@@ -208,12 +219,16 @@ int		main(int argc, char **argv) {
 	save_all(&phars, fd);
 	while (pr == true)
 	{
-	save_map(&phars, fd);
-	save_fig(&phars, fd);
-	find_place(&phars);
-	pr = print_fig(&phars, phars.x);
+	if	(!save_map(&phars, fd) || !save_fig(&phars, fd))
+	{
+		ft_printf("0 0\n");
+	}
+	pr = find_place(&phars);
+	print_fig(&phars);
 	free(phars.map);
 	free(phars.fig);
+		phars.y = 0;
+		phars.x = 0;
 	}
-	return(0);
+	return (0);
 }
