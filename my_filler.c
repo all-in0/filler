@@ -13,6 +13,7 @@
 #include "ft_printf/ft_printf.h"
 #include "filler.h"
 #include <stdlib.h>
+#include <printf.h>
 
 
 int 	try_paste(t_fil *ph, int i)
@@ -24,10 +25,10 @@ int 	try_paste(t_fil *ph, int i)
 	a = 0;
 	while (ph->fig[++b] != '\0')
 	{
-		if ((ph->map[i] == ph->sym || ph->map[i] == ph->sym2) && ph->fig[b] == '*')
+		if ((ph->map[i] == ph->sym || ph->map[i] == ph->sym2) && ph->fig[b] == '*') {
 			a++;
-		if (((ph->map[i] == ph->sym3 || ph->map[i] == ph->sym4) &&
-			 ph->fig[b] == '*') || ph->map[i] == '\n')
+		}
+		if (ph->fig[b] == '*' && ((ph->map[i] == ph->sym3 || ph->map[i] == ph->sym4) || ph->map[i] == '\n' || ph->map[i] =='\0'))
 			return (0);
 		if (ph->fig[b] == '\n')
 			i = i + ph->x - ph->fig_x + 1;
@@ -77,10 +78,11 @@ int		make_koef(t_fil *ph)
 	n = 1;
 	i = -1;
 	while (ph->map[++i] > '\0')
-		if (ph->map[i] == ph->sym4 || ph->map[i] == ph->sym3) {
+		if (ph->map[i] == ph->sym4 || ph->map[i] == ph->sym3)
 			ph->imap[i] = n;
-		}
-	while (++n < 50)
+		else if (ph->map[i] == '\n' || ph->map[i] == '\0')
+			ph->imap[i] = -2;
+	while (++n < 150)
 	{
 		i = -1;
 		while (ph->map[++i] != '\0') {
@@ -91,6 +93,14 @@ int		make_koef(t_fil *ph)
 				ph->imap[i] = n;
 		}
 	}
+	i = -1;
+//	while (ph->map[++i] != '\0')
+//	{
+//		if (ph->imap[i] == -2)
+//			ft_printf("\n");
+//		else
+//			ft_printf("%d|", ph->imap[i]);
+//	}
 }
 
 bool 	find_place(t_fil *phars) {
@@ -124,8 +134,8 @@ int 	save_fig(t_fil *ph, int fd)
 	int 	b;
 	char	*line;
 
-	if (ph->fig != NULL)
-		free(ph->fig);
+//	if (ph->fig != NULL)
+//		free(ph->fig);
 	b = -1;
 	a = -1;
 	get_next_line(fd, &line);
@@ -150,8 +160,8 @@ int		save_map(t_fil *phars, int fd)
 	int		i;
 	int		b;
 
-	if (phars->map != NULL)
-		free(phars->map);
+//	if (phars->map != NULL)
+	//	free(phars->map);
 	a = -1;
 	b = -1;
 	get_next_line(fd, &line);
@@ -202,7 +212,7 @@ int		save_all(t_fil *phars, int fd)
 	return (0);
 }
 
-int		main(int argc, char **argv)
+int		main()
 {
 	t_fil phars;
 	bool pr;
@@ -219,6 +229,7 @@ int		main(int argc, char **argv)
 	if	(!save_map(&phars, fd) || !save_fig(&phars, fd))
 	{
 		ft_printf("0 0\n");
+		pr = 0;
 	}
 	else
 	{
