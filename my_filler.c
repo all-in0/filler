@@ -12,8 +12,6 @@
 
 #include "ft_printf/ft_printf.h"
 #include "filler.h"
-#include <stdlib.h>
-#include <printf.h>
 
 
 int 	try_paste(t_fil *ph, int i)
@@ -25,19 +23,19 @@ int 	try_paste(t_fil *ph, int i)
 	a = 0;
 	while (ph->fig[++b] != '\0')
 	{
-		if ((ph->map[i] == ph->sym || ph->map[i] == ph->sym2) && ph->fig[b] == '*') {
+		if ((ph->map[i] == ph->sym || ph->map[i] == ph->sym2) &&
+			ph->fig[b] == '*')
 			a++;
-		}
-		if (ph->fig[b] == '*' && ((ph->map[i] == ph->sym3 || ph->map[i] == ph->sym4) || ph->map[i] == '\n' || ph->map[i] =='\0'))
+		if (ph->fig[b] == '*' && ((ph->map[i] == ph->sym3 ||
+				ph->map[i] == ph->sym4) || ph->map[i] == '\n' ||
+				ph->map[i] =='\0'))
 			return (0);
 		if (ph->fig[b] == '\n')
 			i = i + ph->x - ph->fig_x + 1;
 		else
 			i++;
 	}
-	if (a == 1)
-		return (1);
-	return (0);
+	return (a == 1 ? 1 : 0);
 }
 
 int 	check_koef(t_fil *ph, int i)
@@ -54,7 +52,6 @@ int 	check_koef(t_fil *ph, int i)
 		if (ph->fig[b] == '*') {
 			a++;
 			c = c + ph->imap[a];
-		//	ft_printf("%d\n", ph->imap[a]);
 		}
 		else if (ph->fig[b] == '.')
 			a++;
@@ -86,10 +83,10 @@ int		make_koef(t_fil *ph)
 	{
 		i = -1;
 		while (ph->map[++i] != '\0') {
-			if (((ph->imap[i + 1] == (n - 1) || ph->imap[i - 1] == (n - 1) ||
-				ph->imap[i + ph->x] == (n - 1) || ph->imap[i + ph->x + 1] == (n - 1) ||
-				ph->imap[i + ph->x + 2] == (n - 1) || ph->imap[i - ph->x] == (n - 1) ||
-				ph->imap[i - ph->x - 1] == (n - 1) || ph->imap[i - ph->x - 2] == (n - 1)) && ph->imap[i] < (n - 1)) && ph->imap[i] == 0)
+			if ((((i < ph->x * (ph->y + 1) && ph->imap[i + 1] == (n - 1)) || (i > 0 && ph->imap[i - 1] == (n - 1)) ||
+					(i < (ph->x * (ph->y + 1)) - ph->x && ph->imap[i + ph->x] == (n - 1)) || (i < (ph->x * (ph->y + 1)) - ph->x - 1 && ph->imap[i + ph->x + 1] == (n - 1)) ||
+					(i < (ph->x * (ph->y + 1)) - ph->x - 2 && ph->imap[i + ph->x + 2] == (n - 1)) || (i > ph->x && ph->imap[i - ph->x] == (n - 1)) ||
+					(i > ph->x + 1 && ph->imap[i - ph->x - 1] == (n - 1)) || (i > ph->x + 2 && ph->imap[i - ph->x - 2] == (n - 1))) && ph->imap[i] < (n - 1)) && ph->imap[i] == 0)
 				ph->imap[i] = n;
 		}
 	}
